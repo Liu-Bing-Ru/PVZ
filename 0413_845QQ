@@ -1,0 +1,728 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+#include <vector>
+using namespace std;
+
+class Tester {
+public:
+	int key = 0;
+	double f1 = 0;
+	double f2;
+	double f3;
+	double f4;
+	double f5;
+	double f6;
+	double f7;
+	int class_type;
+};
+//計算Gini值
+/*class Denode {
+	//閾值
+	double wanted_value;
+	int left[640];
+	int right[640];
+
+};*/
+class DecisionNode {
+public:
+	int feature[640];    // 用哪個特徵分類
+	double threshold;  // 分類閾值
+	bool is_leaf;   // 是否為葉節點
+	bool result;    // 葉節點的分類結果
+	//數一下有幾個subject
+	int right_n;
+	int left_n;
+	DecisionNode* left;   // 左子樹指針
+	DecisionNode* right;  // 右子樹指針
+};
+
+// 創建一個新節點
+DecisionNode* new_node(int feature[], double threshold, bool is_leaf, bool result) {
+	DecisionNode* node = new DecisionNode();
+	/*node->feature[] = feature;
+	node->threshold = threshold;
+	node->is_leaf = is_leaf;
+	node->result = result;*/
+	node->left = NULL;
+	node->right = NULL;
+	return node;
+}
+/*class Node {
+public:
+	double score[640];
+	int n_right = 0;
+	int n_left = 0;
+	Node* next;
+	//Node* next_left;
+};*/
+
+double Gini(int n1, int n1_c1, int n1_c2, int n2, int n2_c1, int n2_c2) {
+	//要找最小，Gain才會最大
+	double x1, x2,x3, x4 = 0, x6;
+	x1 = (double)n1_c1 / n1;
+	x2 = (double)n1_c2 / n1;
+	x3 = (double)n2_c1 / n2;
+	x4 = (double)n2_c2 / n2;
+	//cout << n1_c1 << "\t" << n1_c2 << "\t" << n1 << "\t" << n2_c1 << "\t" << n2_c2 << "\t" << n2 << endl;
+	//cout << x1 << x2 << x3 << x4;
+	//cout << "這是n1的Gini" << (1 - pow(x1, 2) - pow(x2, 2)) << "這是n2的Gini" << ((1 - pow(x3, 2) - pow(x4, 2))) << endl;
+	return (1 - pow(x1, 2) - pow(x2, 2)) * n1 / (n1 + n2) + ((1 - pow(x3, 2) - pow(x4, 2)) * n2 / (n1 + n2));
+}
+/*double Gini_p(int n1, int n1_c1, int n1_c2, int n2, int n2_c1, int n2_c2) {
+	//要找最小，Gain才會最大
+	double x1, x2, x3, x4 = 0, x6;
+	x1 = n1_c1 / n1;
+	x2 = n1_c2 / n1;
+	x3 = n2_c1 / n2;
+	x4 = n2_c2 / n2;
+	return (1 - pow(x1, 2) - pow(x2, 2)) * n1 / (n1 + n2) + ((1 - pow(x3, 2) - pow(x4, 2)) * n2 / (n1 + n2));
+}*/
+
+
+/*double Gain(int n1, int n2, double g1, double g2) {
+
+}*/
+
+
+int main()
+{
+	int i = 0;
+	int remb[500];
+	double dis[640][8];
+	//int remn[63][640];
+	Tester array[5000];
+	double m1[640];
+	double m2[640];
+	double m3[640];
+	double m4[640];
+	double m5[640];
+	double m6[640];
+	double m7[640];
+	int number[640];
+
+
+	ifstream inputfile;
+	//inputfile 是名稱
+	inputfile.open("Estimated_Data_7features_final.csv");
+	//line 是 string datatype
+	string line = "";
+	getline(inputfile, line); // 把第一行row吃掉
+	while (getline(inputfile, line)) {
+
+		int key;
+		double f1;
+		double f2;
+		double f3;
+		double f4;
+		double f5;
+		double f6;
+		double f7;
+		int class_type;
+		string tempstring; //用來轉換 文字 to 數字
+		string tem;
+		stringstream inputString(line); //不知道這行意思
+		// 要用單引號 因為CHAR
+
+		getline(inputString, tem, ',');
+		key = atoi(tem.c_str());
+		array[i].key = key;
+		getline(inputString, tem, ',');
+		f1 = atof(tem.c_str());
+		array[i].f1 = f1;
+		getline(inputString, tem, ',');
+		f2 = atof(tem.c_str());
+		array[i].f2 = f2;
+		getline(inputString, tem, ',');
+		f3 = atof(tem.c_str());
+		array[i].f3 = f3;
+		getline(inputString, tem, ',');
+		f4 = atof(tem.c_str());
+		array[i].f4 = f4;
+		getline(inputString, tem, ',');
+		f5 = atof(tem.c_str());
+		array[i].f5 = f5;
+		getline(inputString, tem, ',');
+		f6 = atof(tem.c_str());
+		array[i].f6 = f6;
+		getline(inputString, tem, ',');
+		f7 = atof(tem.c_str());
+		array[i].f7 = f7;
+		getline(inputString, tem, ',');
+		class_type = atoi(tem.c_str());
+		array[i].class_type = class_type;
+		i++;
+
+	}
+	/*for (int i = 0; i < 640; i++) {
+		//cout << array[i].key << "\t" << array[i].f1 << endl;
+		cout << i << "\t" << array[i].key << "\t" << array[i].f1 << "\t" << array[i].f2
+			<< "\t" << array[i].f3 << "\t" << array[i].f4 << "\t" << array[i].f5
+			<< "\t" << array[i].f6 << "\t" << array[i].f7 << "\t" << array[i].class_type << "\t" << endl;
+	}*/
+	for (int i = 0; i < 640; i++) {
+		m1[i] = array[i].f1;
+		m2[i] = array[i].f2;
+		m3[i] = array[i].f3;
+		m4[i] = array[i].f4;
+		m5[i] = array[i].f5;
+		m6[i] = array[i].f6;
+		m7[i] = array[i].f7;
+		number[i] = array[i].class_type;
+	}
+	for (int i = 0; i < 640; i++) {
+		dis[i][0] = m1[i];
+		dis[i][1] = m2[i];
+		dis[i][2] = m3[i];
+		dis[i][3] = m4[i];
+		dis[i][4] = m5[i];
+		dis[i][5] = m6[i];
+		dis[i][6] = m7[i];
+		dis[i][7] = number[i];
+	}
+	for (int i = 0; i < 640; i++) {
+		for (int j = 0; j < 8; j++) {
+			cout << dis[i][j] << "\t";
+		}
+		cout << endl;
+	}
+	//驗證
+	/*for (int i = 0; i < 640; i++) {
+		cout << i << "\t" << m1[i] << "\t" << m2[i] << "\t" << m3[i]
+			<< "\t" << m4[i] << "\t" << m5[i] << "\t" << m6[i]
+			<< "\t" << m7[i] << "\t" << number[i] << endl;
+	}*/
+	/*for (int i = 0; i < 640; i++) {
+		double thisvalue;
+		int n1 = 0, n2 = 0;
+		int n1_c1 = 0, n1_c2 = 0;
+		int n2_c1 = 0, n2_c2 = 0;
+		thisvalue = m1[i];
+		for (int i = 0; i < 640; i++) {
+			if (m1[i] >= thisvalue) {
+				n1++;
+				if (array[i].class_type == 0) {
+					n1_c1++;
+				}
+				else {
+					n1_c2++;
+				}
+			}
+			else {
+				n2++;
+				if (array[i].class_type == 0) {
+					n2_c1++;
+				}
+				else {
+					n2_c2++;
+				}
+			}
+
+		}
+		cout << "用第i值當作標準" << i << "左邊有" << n1 << "(" << n1_c1 << "," << n1_c2 << ")"
+									  << "右邊有" << n2 << "(" << n2_c1 << "," << n2_c2 << ")" << endl;
+		//要找Gini最小值，Gain才會最大
+		if (n1 == 0 or n2 == 0) {
+			continue;
+		}
+		now = Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2);
+		//cout << "這邊是" << now;
+		if (now < remmin) {
+			//記住GINI 值
+			remmin = now;
+			//記住閾值
+			remvalue = thisvalue;
+		}
+	}*/
+	//cout << remmin << "," << remvalue;
+	int remi = 0;
+	double remmin = 50;
+	int rem_FF = 0;
+	double now = 0;
+	double remvalue = 0;
+
+	for (int i = 0; i < 640; i++) {
+		double thisvalue;
+		int n1 = 0, n2 = 0;
+		int n1_c1 = 0, n1_c2 = 0;
+		int n2_c1 = 0, n2_c2 = 0;
+		thisvalue = m1[i];
+		for (int i = 0; i < 640; i++) {
+			if (m1[i] >= thisvalue) {
+				n1++;
+				if (array[i].class_type == 0) {
+					n1_c1++;
+				}
+				else {
+					n1_c2++;
+				}
+			}
+			else {
+				n2++;
+				if (array[i].class_type == 0) {
+					n2_c1++;
+				}
+				else {
+					n2_c2++;
+				}
+			}
+
+		}
+		if (n1 < 5 or n2 < 5) {
+			continue;
+		}
+		//cout << "用第i值當作標準" << i << "左邊有" << n1 << "(" << n1_c1 << "," << n1_c2 << ")"
+			//<< "右邊有" << n2 << "(" << n2_c1 << "," << n2_c2 << ")" << Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2) << endl;
+		
+		//要找Gini最小值，Gain才會最大
+		/*if (n1 == 0 or n2 == 0) {
+			continue;
+		}*/
+		now = Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2);
+		//cout << "這邊是" << now;
+		if (now < remmin) {
+			//記住GINI 值
+			remmin = now;
+			//記住閾值
+			remvalue = thisvalue;
+			remi = i;
+			rem_FF = 1;
+		}
+	}
+	for (int i = 0; i < 640; i++) {
+		double thisvalue;
+		int n1 = 0, n2 = 0;
+		int n1_c1 = 0, n1_c2 = 0;
+		int n2_c1 = 0, n2_c2 = 0;
+		thisvalue = m2[i];
+		for (int i = 0; i < 640; i++) {
+			if (m2[i] >= thisvalue) {
+				n1++;
+				if (array[i].class_type == 0) {
+					n1_c1++;
+				}
+				else {
+					n1_c2++;
+				}
+			}
+			else {
+				n2++;
+				if (array[i].class_type == 0) {
+					n2_c1++;
+				}
+				else {
+					n2_c2++;
+				}
+			}
+
+		}
+		if (n1 < 5 or n2 < 5) {
+			continue;
+		}
+		//cout << "用第i值當作標準" << i << "左邊有" << n1 << "(" << n1_c1 << "," << n1_c2 << ")"
+			//<< "右邊有" << n2 << "(" << n2_c1 << "," << n2_c2 << ")" << Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2) << endl;
+
+		//要找Gini最小值，Gain才會最大
+		/*if (n1 == 0 or n2 == 0) {
+			continue;
+		}*/
+		now = Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2);
+		//cout << "這邊是" << now;
+		if (now < remmin) {
+			//記住GINI 值
+			remmin = now;
+			//記住閾值
+			remvalue = thisvalue;
+			remi = i;
+			rem_FF = 2;
+		}
+	}
+	for (int i = 0; i < 640; i++) {
+		double thisvalue;
+		int n1 = 0, n2 = 0;
+		int n1_c1 = 0, n1_c2 = 0;
+		int n2_c1 = 0, n2_c2 = 0;
+		thisvalue = m3[i];
+		for (int i = 0; i < 640; i++) {
+			if (m3[i] >= thisvalue) {
+				n1++;
+				if (array[i].class_type == 0) {
+					n1_c1++;
+				}
+				else {
+					n1_c2++;
+				}
+			}
+			else {
+				n2++;
+				if (array[i].class_type == 0) {
+					n2_c1++;
+				}
+				else {
+					n2_c2++;
+				}
+			}
+
+		}
+		if (n1 < 5 or n2 < 5) {
+			continue;
+		}
+		//cout << "用第i值當作標準" << i << "左邊有" << n1 << "(" << n1_c1 << "," << n1_c2 << ")"
+			//<< "右邊有" << n2 << "(" << n2_c1 << "," << n2_c2 << ")" << Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2) << endl;
+		
+		//要找Gini最小值，Gain才會最大
+		/*if (n1 == 0 or n2 == 0) {
+			continue;
+		}*/
+		now = Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2);
+		//cout << "這邊是" << now;
+		if (now < remmin) {
+			//記住GINI 值
+			remmin = now;
+			//記住閾值
+			remvalue = thisvalue;
+			remi = i;
+			rem_FF = 3;
+		}
+	}
+	for (int i = 0; i < 640; i++) {
+		double thisvalue;
+		int n1 = 0, n2 = 0;
+		int n1_c1 = 0, n1_c2 = 0;
+		int n2_c1 = 0, n2_c2 = 0;
+		thisvalue = m4[i];
+		for (int i = 0; i < 640; i++) {
+			if (m4[i] >= thisvalue) {
+				n1++;
+				if (array[i].class_type == 0) {
+					n1_c1++;
+				}
+				else {
+					n1_c2++;
+				}
+			}
+			else {
+				n2++;
+				if (array[i].class_type == 0) {
+					n2_c1++;
+				}
+				else {
+					n2_c2++;
+				}
+			}
+
+		}
+		if (n1 < 5 or n2 < 5) {
+			continue;
+		}
+		//cout << "用第i值當作標準" << i << "左邊有" << n1 << "(" << n1_c1 << "," << n1_c2 << ")"
+			//<< "右邊有" << n2 << "(" << n2_c1 << "," << n2_c2 << ")" << Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2) << endl;
+
+		//要找Gini最小值，Gain才會最大
+		/*if (n1 == 0 or n2 == 0) {
+			continue;
+		}*/
+		now = Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2);
+		//cout << "這邊是" << now;
+		if (now < remmin) {
+			//記住GINI 值
+			remmin = now;
+			//記住閾值
+			remvalue = thisvalue;
+			remi = i;
+			rem_FF = 4;
+		}
+	}
+	for (int i = 0; i < 640; i++) {
+		double thisvalue;
+		int n1 = 0, n2 = 0;
+		int n1_c1 = 0, n1_c2 = 0;
+		int n2_c1 = 0, n2_c2 = 0;
+		thisvalue = m5[i];
+		for (int i = 0; i < 640; i++) {
+			if (m5[i] >= thisvalue) {
+				n1++;
+				if (array[i].class_type == 0) {
+					n1_c1++;
+				}
+				else {
+					n1_c2++;
+				}
+			}
+			else {
+				n2++;
+				if (array[i].class_type == 0) {
+					n2_c1++;
+				}
+				else {
+					n2_c2++;
+				}
+			}
+
+		}
+		if (n1 < 5 or n2 < 5) {
+			continue;
+		}
+		//cout << "用第i值當作標準" << i << "左邊有" << n1 << "(" << n1_c1 << "," << n1_c2 << ")"
+			//<< "右邊有" << n2 << "(" << n2_c1 << "," << n2_c2 << ")" << Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2) << endl;
+
+		//要找Gini最小值，Gain才會最大
+		/*if (n1 == 0 or n2 == 0) {
+			continue;
+		}*/
+		now = Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2);
+		//cout << "這邊是" << now;
+		if (now < remmin) {
+			//記住GINI 值
+			remmin = now;
+			//記住閾值
+			remvalue = thisvalue;
+			remi = i;
+			rem_FF = 5;
+		}
+	}
+	for (int i = 0; i < 640; i++) {
+		double thisvalue;
+		int n1 = 0, n2 = 0;
+		int n1_c1 = 0, n1_c2 = 0;
+		int n2_c1 = 0, n2_c2 = 0;
+		thisvalue = m6[i];
+		for (int i = 0; i < 640; i++) {
+			if (m6[i] >= thisvalue) {
+				n1++;
+				if (array[i].class_type == 0) {
+					n1_c1++;
+				}
+				else {
+					n1_c2++;
+				}
+			}
+			else {
+				n2++;
+				if (array[i].class_type == 0) {
+					n2_c1++;
+				}
+				else {
+					n2_c2++;
+				}
+			}
+
+		}
+		if (n1 < 5 or n2 < 5) {
+			continue;
+		}
+		//cout << "用第i值當作標準" << i << "左邊有" << n1 << "(" << n1_c1 << "," << n1_c2 << ")"
+			//<< "右邊有" << n2 << "(" << n2_c1 << "," << n2_c2 << ")" << Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2) << endl;
+
+		//要找Gini最小值，Gain才會最大
+		/*if (n1 == 0 or n2 == 0) {
+			continue;
+		}*/
+		now = Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2);
+		//cout << "這邊是" << now;
+		if (now < remmin) {
+			//記住GINI 值
+			remmin = now;
+			//記住閾值
+			remvalue = thisvalue;
+			remi = i;
+			rem_FF = 6;
+		}
+	}
+	for (int i = 0; i < 640; i++) {
+		double thisvalue;
+		int n1 = 0, n2 = 0;
+		int n1_c1 = 0, n1_c2 = 0;
+		int n2_c1 = 0, n2_c2 = 0;
+		thisvalue = m7[i];
+		for (int i = 0; i < 640; i++) {
+			if (m7[i] >= thisvalue) {
+				n1++;
+				if (array[i].class_type == 0) {
+					n1_c1++;
+				}
+				else {
+					n1_c2++;
+				}
+			}
+			else {
+				n2++;
+				if (array[i].class_type == 0) {
+					n2_c1++;
+				}
+				else {
+					n2_c2++;
+				}
+			}
+
+		}
+		if (n1 < 5 or n2 < 5) {
+			continue;
+		}
+		//cout << "用第i值當作標準" << i << "左邊有" << n1 << "(" << n1_c1 << "," << n1_c2 << ")"
+			//<< "右邊有" << n2 << "(" << n2_c1 << "," << n2_c2 << ")" << Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2) << endl;
+
+		//要找Gini最小值，Gain才會最大
+		/*if (n1 == 0 or n2 == 0) {
+			continue;
+		}*/
+		now = Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2);
+		//cout << "這邊是" << now;
+		if (now < remmin) {
+			//記住GINI 值
+			remmin = now;
+			//記住閾值
+			remvalue = thisvalue;
+			remi = i;
+			rem_FF = 7;
+		}
+	}
+
+
+
+	//印出最小的 remmin = > GINI的最小，也就是GAIN最大
+	//          remvalue = > 印出想要的閾值
+	//          remi     =>  印出想要的下標
+	cout <<"這裡是最小GINI" << remmin << "," << "該筆資料" << remvalue << "\t" 
+		  <<"特徵值" << "\t" << rem_FF << "," << remi << endl;
+
+/*class Node {
+public:
+	double score[640];
+	int n_right = 0;
+	int n_left = 0;
+	Node* next;
+};
+	Node* node = new Node();
+	for (int i = 0; i < 640; i++) {
+		node->score[i] = i;
+	}
+	node->next = nullptr;
+	//cout << remmin << "," << remvalue << "\t" << remi;
+	while (true) {
+		int n1 = 0, n2 = 0;
+		//這個node用來接下一個
+		Node* node_1 = new Node();
+		node->next = node_1;
+
+		if (node_1->n_right < 5 and node_1->n_left < 5) {
+			break;
+		}
+		//寫兩層for迴圈把全部弄進去畔對
+		//dis[i][7] = number[i];
+		double GG = 0;
+		//等同於n1 n2
+		int l1 = 0, l2 = 0;
+		for (int i = 0; i < 7; i++) {
+			for (int j = 0; j < 640; j++) {
+				GG = dis[i][j];
+				if (dis[i][j] >= GG) {
+				}
+			}
+		}
+
+	}*/
+class Node {
+public:
+		double GG_feature;
+		double GG_threehold;
+		double Gini;
+		Node *right;
+		Node *left;
+};
+	//v1.size()
+	vector <Node*>v1;
+	vector <vector<double>> d1; 
+	//第一層
+
+	//這個temp C++怎麼知道是指vector<double>
+	vector<double> temp(640, 1);
+
+	/*for (int i = 0; i < 640; i++) {
+
+	}*/
+	vector <Node*>v2;
+	vector<vector<double>> d2;
+	int y1 = 0, y2 = 0, y3 = 0, y4 = 0;
+	int y1_c0 = 0, y1_c1 = 0, y2_c0 = 0, y2_c1 = 0;
+	/*	cout <<"這裡是最小GINI" << remmin << "," << "該筆資料" << remvalue << "\t" 
+		  <<"特徵值" << "\t" << rem_FF << "," << remi;
+	*/
+	cout << dis[rem_FF - 1][remi] << remvalue << endl;
+	while (true) {
+		Node* SS;
+		SS = new Node;
+		v1.push_back(SS->right);
+		v1.push_back(SS->left);
+		//for(dis[rem_FF-1][remi])
+
+
+
+
+	}
+
+
+	//先從 m1第一筆開始測試
+	/*while (true) {
+		double GG = 0;
+		//記住Gini 最小的
+		double rem_Gini = 5;
+		//記住feature 適用哪一個 0-6
+		int rem_F = 0;
+		//記住哪一筆資料
+		int rem_pen = 0;
+		//要記住
+		//先找出 要使用哪一個 羽毛 + 哪一個 閾值
+		for (int j = 0; j < 7; j++) {
+			for (int i = 0; i < 640; i++) {
+				GG = dis[i][j];
+				//想像要比F1
+				for (int k = 0; k < 640; k++) {
+					//從第0比開始比 往直的方向往下比
+					if (dis[k][j] >= dis[i][j]) {
+						y1++;
+						//記住哪一個class
+						if (dis[k][7] == 0) {
+							y1_c0++;
+						}
+						else {
+							y1_c1++;
+						}
+					}
+					else {
+						y2++;
+						if (dis[k][j] >= dis[i][j]) {
+							y2_c0++;
+						}
+						else {
+							y2_c1++;
+						}
+					}
+				//在這邊驗證
+				//cout << "這是第1筆"
+				}
+				//計算gini值  取最小
+				//Gini(n1, n1_c1, n1_c2, n2, n2_c1, n2_c2)
+				if (Gini(y1, y1_c0, y1_c1, y2, y2_c0, y2_c1) < rem_Gini) {
+					rem_Gini = Gini(y1, y1_c0, y1_c1, y2, y2_c0, y2_c1);
+					rem_F = j;
+					rem_pen = i;
+				}
+
+			}
+		}
+		cout << "第一個數值是多少GINI" << rem_Gini <<"\t" 
+			 << "哪一比F" << "\t" << rem_F << "\t" << rem_pen << endl;
+		break;
+
+	}*/
+
+
+
+
+
+}//main end
+
+// https://www.geeksforgeeks.org/decision-tree/
+//會考 primary clustering
