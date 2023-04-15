@@ -1,0 +1,149 @@
+#include <iostream>
+using namespace std;
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <cmath>
+#include <vector>
+
+//Special_point
+class Spoint {
+public:
+    int x;
+    int y;
+};
+class Branch {
+public:
+    int x;
+    int y;
+};
+
+
+int main()
+{   // 名稱是 points
+    vector <Spoint> points;
+    vector <Branch> branches;
+
+    int point[200][200] = { 0 };
+    int visted[200][200] = { 0 };
+
+    ifstream inputfile;
+    inputfile.open("skeleton.csv");
+    // file("skeleton.csv");
+    string line = "";
+    //讀進陣列裡面
+    for (int i = 0; i < 200; i++) {
+        string line;
+        getline(inputfile, line);
+        stringstream inputString(line);
+        char delimiter;
+        //delimiter 就是讀分隔號
+        for (int j = 0; j < 200; j++) {
+            inputString >> point[i][j] >> delimiter;
+        }
+    }
+    // 關閉檔案
+    inputfile.close();
+    /*for (int i = 0; i < 200; i++) {
+        for (int j = 0; j < 200; j++) {
+            cout << point[i][j];
+        }
+        cout << endl;
+    }*/
+    // point[62][1];
+    //cout << point[62][1];
+
+    // cout << "=============================================================================="
+    /*for (int i = 0; i < 20; i++) {
+        cout << "這是第" << i << "\t" << point[62][i] << endl;
+    }*/
+    // cout << "=============================================================================="
+    //0 接17個1 0，0
+    //寫一個visted  檢查歸零
+    /*for (int i = 0; i < 200; i++) {
+        for (int j = 0; j < 200; j++) {
+            cout << visted[i][j];
+        }
+    }*/
+    //檔案都讀完了        再來是DFS實作
+    int remx;
+    int remy;
+    int rem_nbranch = 0;
+    int n = 0;
+    for (int i = 0; i < 200; i++) {
+        for (int j = 0; j < 200; j++) {
+            if (point[i][j] == 1 and visted[i][j] == 0) {
+                //如果是1 且是新的
+                //記住484三叉
+                int k = 0;
+                visted[i][j] = 1;
+                points.push_back({i, j});
+                n++;
+                //這邊寫一個判斷branch   =>  簡單來說 就是檢查是不是3叉             我這邊寫完 可以測試484  十個點XD
+                //從北開始走 我是 左上角 00 
+                //問這邊為什麼不能寫 else if
+                if (i - 1 > 0 and point[i-1][j] == 1) {
+                    k++;
+                }
+                if (i - 1 > 0 and j + 1 < 200 and point[i - 1][j + 1] == 1) {
+                    k++;
+                }
+                if (j + 1 < 200 and point[i][j + 1] == 1) {
+                    k++;
+                }
+                if (i + 1 < 200 and j + 1 < 200 and point[i + 1][j + 1] == 1) {
+                    k++;
+                }
+                if (i + 1 < 200 and point[i + 1][j] == 1) {
+                    k++;
+                }
+                if (i + 1 < 200 and j - 1 > 0 and point[i + 1][j - 1] == 1) {
+                    k++;
+                }
+                if (j - 1 > 0 and point[i][j - 1] == 1) {
+                    k++;
+                }
+                if (i - 1 > 0 and j - 1 > 0 and point[i - 1][j - 1] == 1) {
+                    k++;
+                }
+                if (k == 3) {
+                    branches.push_back({ i,j });
+                    rem_nbranch++;
+                }
+            }
+        }
+    }
+    cout << "總共有幾筆" << n << endl;
+
+    cout << "總共有幾個分支" << rem_nbranch << endl;
+
+
+    /*for (const auto& point : points) {
+        cout << n << "\t" << point.x << ", " << point.y << endl;
+        n--;
+    }*/
+
+    /*for (const auto& branch : branches) {
+    cout << "\t" << branches.x << ", " << branches.y << endl;
+    }*/
+    for (const auto& branch : branches) {
+        cout << branch.x << ", " << branch.y << endl;
+        point[branch.x][branch.y] = 128;
+        cout << point[branch.x][branch.y] << endl;
+    }
+    //把分支點改成128
+    ofstream myfile("number1.csv");
+    for (int i = 0; i < 200; i++) {
+        for (int j = 0; j < 200; j++) {
+
+            myfile << point[i][j] << ",";
+        }
+        myfile << endl;
+    }
+    myfile.close();
+
+
+
+
+
+}
