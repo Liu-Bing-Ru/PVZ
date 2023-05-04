@@ -1,0 +1,47 @@
+#include <iostream>
+using namespace std;
+
+//寫寫看 看如果 operater + 可不可以不對稱  3 + a(monster型態)
+/*class Monster{
+public:
+    void operater + (ostream & os, int){
+        return monster.value + int;
+    }
+private:
+    int value = 0;
+};
+int main()
+{   
+    Monster a(5)
+    cout << (a+3);
+    cout<<"Hello World";
+
+    return 0;
+}*/
+#include <iostream>
+using namespace std;
+
+class Monster{
+public:
+    Monster(int v) : value(v) {}
+    int getValue() const { return value; }
+private:
+    int value = 0;
+};
+
+Monster operator+(const Monster& lhs, int rhs) {
+    return Monster(lhs.getValue() + rhs);
+}
+Monster operator+(int rhs, const Monster& lhs) {
+    return Monster(lhs.getValue() + rhs);
+}
+
+int main()
+{   
+    Monster a(5);
+    cout << (3+a).getValue();
+    cout << endl;
+    cout<<"Hello World";
+    return 0;
+}
+
