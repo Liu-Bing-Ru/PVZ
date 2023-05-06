@@ -1,0 +1,13 @@
+3 ABCEHSHSH
+5 FA0ETASINAHGRI0NATWON0QA0NARI0
+0
+
+第一個數字是分成幾群
+第一組分三群
+第二組分5群
+
+步驟就是先把長度算出來
+
+然後除以要分幾群
+
+然後
