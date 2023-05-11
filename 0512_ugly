@@ -1,0 +1,31 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>  // for nth_element()
+#include <numeric>    // for accumulate() 
+using namespace std;
+
+int main()
+{
+    int number = 0;
+    cin >> number;
+    for (int i = 0; i < number; i++) {
+        int sum = 0;
+        vector<int> array;
+        int how_many_number = 0;
+        cin >> how_many_number;
+        for (int j = 0; j < how_many_number; j++) {
+            int x = 0;
+            cin >> x;
+            array.push_back(x);
+        }
+        sum = accumulate(array.begin(), array.end(), sum);
+        int avg = sum / how_many_number;
+        nth_element(array.begin(), array.begin() + how_many_number / 2, array.end());
+        int med = array[how_many_number / 2];
+        int ans = 0;
+        for (int i = 0; i < array.size(); i++) {
+            ans += abs(array[i] - med);
+        }
+        cout << ans << endl;
+    }
+}
