@@ -1,0 +1,116 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sstream>
+using namespace std;
+
+class C_Plants {
+public:
+    C_Plants(const string& type, const string& n, int money, int hp, int t, int earn)
+        : type_plants(type), name(n), how_much_money(money), how_many_hp(hp), times(t), earn_money(earn) {}
+
+private:
+    string type_plants;
+    string name;
+    int how_much_money;
+    int how_many_hp;
+    int times;
+    int earn_money;
+};
+
+class S_Plants {
+public:
+    S_Plants(const string& type, const string& n, int money, int hp, int attack)
+        : type_plants(type), name(n), how_much_money(money), how_many_hp(hp), attack_power(attack) {}
+
+private:
+    string type_plants;
+    string name;
+    int how_much_money;
+    int how_many_hp;
+    int attack_power;
+};
+
+class B_Plants {
+public:
+    B_Plants(const string& type, const string& n, int money, int attack)
+        : type_plants(type), name(n), how_much_money(money), attack_power(attack) {}
+
+private:
+    string type_plants;
+    string name;
+    int how_much_money;
+    int attack_power;
+};
+
+class H_Plants {
+public:
+    H_Plants(const string& type, const string& n, int money, int hp, int help)
+        : type_plants(type), name(n), how_much_money(money), how_many_hp(hp), help_power(help) {}
+
+private:
+    string type_plants;
+    string name;
+    int how_much_money;
+    int how_many_hp;
+    int help_power;
+};
+
+int main()
+{
+    ifstream file("plants.txt");
+
+    if (file.is_open()) {
+        string line;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string word;
+            vector<string> words;
+            words.clear();
+            while (ss >> word) {
+                words.push_back(word);
+            }
+            if (!words.empty()) {
+                //cout << "here0" << endl;
+                string type = words[0];
+                string name = words[1];
+                int money = stoi(words[2]);
+
+                if (type == "C") {
+                    int hp = stoi(words[3]);
+                    int t = stoi(words[4]);
+                    int earn = stoi(words[5]);
+                    C_Plants plant(type, name, money, hp, t, earn);
+                    //cout << "here1" << endl;
+                    // 这里可以根据需要对 C_Plants 进行操作或输出
+                }
+                else if (type == "S") {
+                    int hp = stoi(words[3]);
+                    int attack = stoi(words[4]);
+                    S_Plants plant(type, name, money, hp, attack);
+                    // 这里可以根据需要对 S_Plants 进行操作或输出
+                }
+                else if (type == "B") {
+                    int attack = stoi(words[3]);
+                    B_Plants plant(type, name, money, attack);
+                    // 这里可以根据需要对 B_Plants 进行操作或输出
+                }
+                else if (type == "H") {
+                    int hp = stoi(words[3]);
+                    int help = stoi(words[4]);
+                    H_Plants plant(type, name, money, hp, help);
+                    // 这里可以根据需要对 H_Plants 进行操作或输出
+                }
+            }
+        }
+
+        file.close();
+    }
+    else {
+        cout << "無法打開文件" << endl;
+    }
+
+    cout << "OK" << endl;
+}
+
