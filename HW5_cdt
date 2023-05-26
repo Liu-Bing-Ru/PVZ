@@ -83,24 +83,20 @@ int main()
                     int earn = stoi(words[5]);
                     C_Plants plant(type, name, money, hp, t, earn);
                     //cout << "here1" << endl;
-                    // 这里可以根据需要对 C_Plants 进行操作或输出
                 }
                 else if (type == "S") {
                     int hp = stoi(words[3]);
                     int attack = stoi(words[4]);
                     S_Plants plant(type, name, money, hp, attack);
-                    // 这里可以根据需要对 S_Plants 进行操作或输出
                 }
                 else if (type == "B") {
                     int attack = stoi(words[3]);
                     B_Plants plant(type, name, money, attack);
-                    // 这里可以根据需要对 B_Plants 进行操作或输出
                 }
                 else if (type == "H") {
                     int hp = stoi(words[3]);
                     int help = stoi(words[4]);
                     H_Plants plant(type, name, money, hp, help);
-                    // 这里可以根据需要对 H_Plants 进行操作或输出
                 }
             }
         }
