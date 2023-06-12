@@ -1,8 +1,9 @@
 #include "Plants&Zombies.h"
+#include <iostream>
 #include <cstdlib>	//for random
 #include <ctime>	//time for random
 
-
+/*
 void Plants::new_plant(char cata, char* nam, int cos, int hp, int cd, int rew)	//coin plants
 {
 	catagory= cata;
@@ -14,120 +15,87 @@ void Plants::new_plant(char cata, char* nam, int cos, int hp, int cd, int rew)	/
 	needtime= recharge;
 	reward= rew;
 }
+*/
 
-void Plants::new_plant(char cata, char* nam, int cos, int hp, int amount)			//shoot & heal plants
+void Plants::death()
 {
-	catagory= cata;
-	name= nam;
-	cost= cos;
-	maxlife= hp;
-	nowlife= hp;
-	if (cata=='S')
-	{
-		damage= amount;
-	}
-	else if(cata=='H')
-	{
-		heal= amount;
-	}
+	std::cout << "Plant " << name << "is dead!" << std::endl;
+	delete this;
 }
 
-void Plants::new_plant(char cata, char* nam, int cos, int hp)				//bomb plants
+void Sunflower::show() const 
 {
-	catagory= cata;
-	name= nam;
-	cost= cos;
-	maxlife= hp;
-	nowlife= hp;
+	std::cout << name << " $" << cost << " HP:" << maxhp << " - give $" << reward << " every " << maxcd << " rounds" << std::endl;
 }
 
-void Plants::player_react()
+void Sunflower::player_react()
 {
-	switch (catagory)
+	if (cd>0)
 	{
-		case 'C':
-			getcoin();
-			break;
-		case 'S':			
-			break;
-		case 'B':			
-			break;
-		case 'H':
-			healing();
-			break;
-		default:
-			break;
+		std::cout << "You still need " << cd << " visit to earn money." << std::endl;
 	}
+	else
+	{
+		// player->money+= reward;
+		std::cout << "You have earned $" << reward << "! Now you have $" << 100 << "." << std::endl;
+		//																//	^this need to react to player's data->money
+		cd= maxcd;
+	}
+	cd-=1;
 }
 
-void Plants::zombie_react(Zombies* zombie)
+void Shooter::show() const 
 {
-	switch (catagory)
-	{
-		case 'C':			
-			break;
-		case 'S':
-			shoot(zombie);		
-			break;
-		case 'B':
-			sacrifice(zombie);		
-			break;
-		case 'H':			
-			break;
-		default:
-			break;
-	}
+	std::cout << name << " $" << cost << " HP:" << maxhp << " - give " << damage << " damage points" << std::endl;
 }
 
-void Plants::getcoin()		//coin plant
+void Shooter::zombie_react(Zombies *zombie)
 {
-	needtime-=1;
-	if (needtime==0)	//recharge is over
-	{
-		//player_money+= reward		//undone
-		needtime= recharge;
-	}
-}
-void Plants::shoot(Zombies* zombie)		//shooter plant
-{
+	std::cout << name << " gives " << damage << " damage to the zombie!" << std::endl;
 	zombie->hp-= damage;
-	
-}
-
-void Plants::sacrifice(Zombies* zombie)	//bomb plant
-{
-	zombie->hp-= maxlife;
-	if (zombie->hp<=0)
+	if (zombie->hp<0)
 	{
 		zombie->death();
 	}
-	death();
 }
 
-void Plants::healing()		//heal plant
+void Bomber::show() const 
 {
-	/*
-	for (int i=0; i<land; i++)
+	std::cout << name << " $" << cost << " HP:" << maxhp << " - give " << maxhp << " damage points" << std::endl;
+}
+
+void Bomber::zombie_react(Zombies *zombie)
+{
+	std::cout << name << " gives " << maxhp << " damage to the zombie!" << std::endl;
+	zombie->hp-= maxhp;
+	if (zombie->hp<0)
 	{
-		land[i].plant.nowlife+= heal;
-		if (land[i].plant.nowlife>maxlife)
-		{
-			nowlife= maxlife;
-		}
+		zombie->death();
+	}
+	this->death();
+}
+
+void Healer::show() const 
+{
+	std::cout << name << " $" << cost << " HP:" << maxhp << " - give all your plants " << heal << " HP back." << std::endl;
+}
+
+void Healer::player_react()
+{
+	//need react to map
+	/*
+	for (int i=0; i<lands; i+=1)
+	{
+		land.plant.hp+= heal;
 	}
 	*/
 }
 
-void Plants::death()
-{
-	delete this;
-	//remove this from the map too
-}
-
 void Zombies::attack(Plants* plant)
 {
-	plant->nowlife-= atk;
-	if (plant->nowlife<=0)
+	std::cout << "Zombie eats plant " << plant->name << " and cause damage " << atk << "." << std::endl;
+	plant->nowhp-= atk;
+	if (plant->nowhp<=0)
 	{
 		plant->death();
 	}
@@ -135,6 +103,7 @@ void Zombies::attack(Plants* plant)
 
 void Zombies::death()
 {
+	std::cout << "Zombie is killed!" << std::endl;
 	delete this;
 }
 
