@@ -1,5 +1,6 @@
 #include "Plants&Zombies.h"
 #include <iostream>
+#include <string>
 #include <cstdlib>	//for random
 #include <ctime>	//time for random
 
@@ -23,6 +24,11 @@ void Plants::death()
 	delete this;
 }
 
+Sunflower::Sunflower(const std::string& str)
+{
+	name= str;
+}
+
 void Sunflower::show() const 
 {
 	std::cout << name << " $" << cost << " HP:" << maxhp << " - give $" << reward << " every " << maxcd << " rounds" << std::endl;
@@ -44,6 +50,11 @@ void Sunflower::player_react()
 	cd-=1;
 }
 
+Shooter::Shooter(const std::string& str)
+{
+	name= str;
+}
+
 void Shooter::show() const 
 {
 	std::cout << name << " $" << cost << " HP:" << maxhp << " - give " << damage << " damage points" << std::endl;
@@ -57,6 +68,11 @@ void Shooter::zombie_react(Zombies *zombie)
 	{
 		zombie->death();
 	}
+}
+
+Bomber::Bomber(const std::string& str)
+{
+	name= str;
 }
 
 void Bomber::show() const 
@@ -73,6 +89,11 @@ void Bomber::zombie_react(Zombies *zombie)
 		zombie->death();
 	}
 	this->death();
+}
+
+Healer::Healer(const std::string& str)
+{
+	name= str;
 }
 
 void Healer::show() const 
