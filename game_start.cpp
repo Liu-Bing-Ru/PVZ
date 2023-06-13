@@ -241,14 +241,14 @@ public:
         int playerChoice = readIntegerInput(0, plants.size(), plants.size());
         if (playerChoice < plants.size()) {
             if (getPlayerMoney() < plants[playerChoice].cost) {
-                std::cout << "Not enough money to plant " << plants[playerChoice].name << std::endl;
+                std::cout << "Not enough money! Please input again!" << plants[playerChoice].name << std::endl;
             } else {
                 if (lands[playerLand].plant != nullptr) {
                     std::cout << "Land already occupied by another plant.\n";
                 } else {
                     setPlayerMoney(getPlayerMoney() - plants[playerChoice].cost);
                     lands[playerLand].plant = std::make_shared<Plant>(plants[playerChoice]);
-                    std::cout << plants[playerChoice].name << " planted successfully\n";
+                    std::cout << "You have planted " << plants[playerChoice].name << " at land " << playerLand << "!\n";
                 }
             }
         } else {
