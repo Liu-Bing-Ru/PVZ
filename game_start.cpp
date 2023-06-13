@@ -191,6 +191,20 @@ public:
             }
 
             std::string plantInfo = (lands[i].plant != nullptr) ? std::string(lands[i].plant->name) : "Empty";
+            plantInfo += (lands[i].plant != nullptr) ? std::string(" HP: ") + std::to_string(lands[i].plant->hp) : "";
+
+            if (lands[i].plant != nullptr && lands[i].plant->type == 'C') {
+
+                if (lands[i].plant->freq >= 2) {
+                    plantInfo += std::string(" (") + std::to_string(lands[i].plant->freq) + std::string(" more visits)");
+                } else if (lands[i].plant->freq == 1) {
+                    plantInfo += std::string(" (") + std::to_string(lands[i].plant->freq) + std::string(" more visit)");
+                } else {
+                    plantInfo += std::string(" lands[i].plant->freq error");
+                }
+                
+            }
+
             std::cout << "{" << occupants << "}" << plantInfo << std::endl;
         }
 
