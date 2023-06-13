@@ -190,7 +190,7 @@ public:
                 occupants[zombiePos] = '0' + zombie->getId();
             }
 
-            std::string plantInfo = (lands[i].plant != nullptr) ? std::string(1, lands[i].plant->type) : "Empty";
+            std::string plantInfo = (lands[i].plant != nullptr) ? std::string(lands[i].plant->name) : "Empty";
             std::cout << "{" << occupants << "}" << plantInfo << std::endl;
         }
 
