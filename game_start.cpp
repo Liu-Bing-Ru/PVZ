@@ -7,6 +7,7 @@
 #include <sstream>
 #include <algorithm>
 #include <random>
+#include <memory>
 
 struct Plant {
     char type;
@@ -35,9 +36,11 @@ public:
 
 class Land {
 public:
-    std::vector<Zombie*> zombies;
-    Plant* plant = nullptr;
+    std::vector<std::shared_ptr<Zombie>> zombies;
+    std::shared_ptr<Plant> plant = nullptr;
+    bool hasPlayer = false;
 };
+
 
 class Game {
 private:
@@ -53,13 +56,6 @@ public:
         loadPlants();
     }
 
-    void cleanUpZombies() {
-        for (auto& land : lands) {
-            for (auto& zombie : land.zombies) {
-                delete zombie;
-            }
-        }
-    }
 
     void start() {
         printWelcome();
@@ -107,22 +103,27 @@ public:
         std::cout << "Number of zombies on the map (1-10, default: 3)...>";
         numberOfZombies = readIntegerInput(1, 10, 3);
 
-        // Resize lands and clear any previous zombies
+        // Resize lands and clear any previous zombies and plants
         lands.resize(numberOfLands);
         for (auto& land : lands) {
-            for (auto& zombie : land.zombies) {
-                delete zombie;
-            }
             land.zombies.clear();
+            land.plant.reset();
+            land.hasPlayer = false;
         }
+
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distr(0, numberOfLands - 1);
 
         for (int i = 0; i < numberOfZombies; ++i) {
-            int landIndex = std::rand() % numberOfLands;
-            lands[landIndex].zombies.push_back(new Zombie(i));
+            int landIndex = distr(gen);
+            lands[landIndex].zombies.push_back(std::make_shared<Zombie>(i));
         }
 
-        playerLand = std::rand() % numberOfLands;
+        playerLand = distr(gen);
+        lands[playerLand].hasPlayer = true;
     }
+
 
     void printRules() {
         std::cout << "=============================================================================" << std::endl;
@@ -172,20 +173,20 @@ public:
         for (int i = 0; i < numberOfLands; ++i) {
             std::cout << "[" << i << "]";
             std::string occupants(numberOfZombies + 1, ' ');
+
             if (playerLand == i) {
                 occupants[0] = '*';
             }
-            for (int j = 0; j < numberOfZombies; ++j) {
-                auto it = std::find_if(lands[i].zombies.begin(), lands[i].zombies.end(),
-                                    [&j](const Zombie *z) { return z->getId() == j; });
-                occupants[j + 1] = (it != lands[i].zombies.end()) ? ('0' + (*it)->getId()) : ' ';
+
+            for (auto& zombie : lands[i].zombies) {
+                int zombiePos = zombie->getId() + 1;
+                occupants[zombiePos] = '0' + zombie->getId();
             }
-            if (lands[i].plant != nullptr) {
-                std::cout << "{" << occupants << "}" << lands[i].plant->type << std::endl;
-            } else {
-                std::cout << "{" << occupants << "}Empty" << std::endl;
-            }
+
+            std::string plantInfo = (lands[i].plant != nullptr) ? std::string(1, lands[i].plant->type) : "Empty";
+            std::cout << "{" << occupants << "}" << plantInfo << std::endl;
         }
+
         std::cout << "------------------------------------------------" << std::endl;
 
         std::cout << "Zombie information:" << std::endl;
