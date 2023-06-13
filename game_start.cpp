@@ -56,7 +56,14 @@ public:
         loadPlants();
     }
 
+    int getPlayerMoney() const {
+        return playerMoney;
+    }
 
+    void setPlayerMoney(int money) {
+        playerMoney = money;
+    }
+    
     void start() {
         printWelcome();
         configureGame();
@@ -230,10 +237,24 @@ public:
 
     // TODO: Implement this function.
     void waitForPlayerChoice() {
-        std::cout << "\nplayer $150:    Enter your choice (4 to give up, default: 4)...>";
-        int playerChoice = readIntegerInput(0, 4, 4);
+        std::cout << "\nplayer $" << getPlayerMoney() << ":    Enter your choice (0-" << plants.size()-1 << " to plant, " << plants.size() << " to give up, default: " << plants.size() << ")...>";
+        int playerChoice = readIntegerInput(0, plants.size(), plants.size());
+        if (playerChoice < plants.size()) {
+            if (getPlayerMoney() < plants[playerChoice].cost) {
+                std::cout << "Not enough money to plant " << plants[playerChoice].name << std::endl;
+            } else {
+                if (lands[playerLand].plant != nullptr) {
+                    std::cout << "Land already occupied by another plant.\n";
+                } else {
+                    setPlayerMoney(getPlayerMoney() - plants[playerChoice].cost);
+                    lands[playerLand].plant = std::make_shared<Plant>(plants[playerChoice]);
+                    std::cout << plants[playerChoice].name << " planted successfully\n";
+                }
+            }
+        }
         pressAnyKeyToContinue();
     }
+
 };
 
 int main() {
