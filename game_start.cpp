@@ -272,29 +272,29 @@ public:
     // TODO: Implement this function.
     void waitForPlayerChoice() {
         std::cout << "\nplayer $" << getPlayerMoney() << ":    Enter your choice (0-" << plants.size()-1 << " to plant, " << plants.size() << " to give up, default: " << plants.size() << ")...>";
-        while (true) {
-            int playerChoice = readIntegerInput(0, plants.size(), plants.size());
-            if (playerChoice < plants.size()) {
-                if (getPlayerMoney() < plants[playerChoice].cost) {
-                    std::cout << "Not enough money! Please input again!" << plants[playerChoice].name << std::endl;
+        
+        int playerChoice = readIntegerInput(0, plants.size(), plants.size());
+        if (playerChoice < plants.size()) {
+            if (getPlayerMoney() < plants[playerChoice].cost) {
+                std::cout << "Not enough money! Please input again!" << plants[playerChoice].name << std::endl;
+                std::cout << "\nplayer $" << getPlayerMoney() << ":    Enter your choice (0-" << plants.size()-1 << " to plant, " << plants.size() << " to give up, default: " << plants.size() << ")...>";
+            } else {
+                if (lands[playerLand].plant != nullptr) {
+                    std::cout << "Land already occupied by " << plants[playerChoice].name << "! Please input again!\n";
                     std::cout << "\nplayer $" << getPlayerMoney() << ":    Enter your choice (0-" << plants.size()-1 << " to plant, " << plants.size() << " to give up, default: " << plants.size() << ")...>";
                 } else {
-                    if (lands[playerLand].plant != nullptr) {
-                        std::cout << "Land already occupied by " << plants[playerChoice].name << "! Please input again!\n";
-                        std::cout << "\nplayer $" << getPlayerMoney() << ":    Enter your choice (0-" << plants.size()-1 << " to plant, " << plants.size() << " to give up, default: " << plants.size() << ")...>";
-                    } else {
-                        setPlayerMoney(getPlayerMoney() - plants[playerChoice].cost);
-                        lands[playerLand].plant = std::make_shared<Plant>(plants[playerChoice]);
-                        std::cout << "You have planted " << plants[playerChoice].name << " at land " << playerLand << "!\n";
-                        break;
-                    }
+                    setPlayerMoney(getPlayerMoney() - plants[playerChoice].cost);
+                    lands[playerLand].plant = std::make_shared<Plant>(plants[playerChoice]);
+                    std::cout << "You have planted " << plants[playerChoice].name << " at land " << playerLand << "!\n";
+
                 }
-            } else {
-                std::cout << "You give up!" << std::endl;
-                pressAnyKeyToContinue();
-                exit(0);
-            } 
-        }
+            }
+        } else {
+            std::cout << "You give up!" << std::endl;
+            pressAnyKeyToContinue();
+            exit(0);
+        } 
+        
         
         
         pressAnyKeyToContinue();
