@@ -25,6 +25,7 @@ struct Plant {
 class Zombie {
 private:
     const int id;
+    int hp = 40; // Initial health points of each zombie.
 
 public:
     Zombie(int id) : id(id) {}
@@ -32,7 +33,17 @@ public:
     int getId() const {
         return id;
     }
+
+    int getHP() const {
+        return hp;
+    }
+
+    void takeDamage(int damage) {
+        hp -= damage;
+        if (hp < 0) hp = 0;
+    }
 };
+
 
 class Land {
 public:
@@ -75,6 +86,8 @@ public:
             waitForPlayerChoice();
             printGameBoard();
             movePlayerZombie();
+            zombiesAttack();
+            plantsAttack();
             // if (isGameOver())
             // {
             //     break;
@@ -215,8 +228,12 @@ public:
 
         std::cout << "Zombie information:" << std::endl;
         for (int i = 0; i < numberOfZombies; ++i) {
-            std::cout << "[" << i << "] Damage: 15 HP:" << std::string(40, '*') << std::endl;
+            if (!lands[i].zombies.empty()) { // Make sure there is a Zombie at this land
+                std::cout << "[" << i << "] Damage: 15 HP:" << std::string(lands[i].zombies[0]->getHP(), '*') << std::endl;
+            }
         }
+
+
         std::cout << "================================================" << std::endl;
 
         for (int i = 0; i < int(plants.size()); ++i) {
@@ -313,8 +330,56 @@ public:
         pressAnyKeyToContinue();
     }
 
+    void zombiesAttack() {
+        for (auto& land : lands) {
+            if (!land.zombies.empty() && land.plant != nullptr) {
+                // Assuming each zombie deals 15 damage.
+                int totalDamage = 15 * land.zombies.size();
+                land.plant->hp -= totalDamage;
+
+                if (land.plant->hp <= 0) {
+                    land.plant.reset();
+                }
+            }
+        }
+    }
+
+    void plantsAttack() {
+        for (auto& land : lands) {
+            if (!land.zombies.empty() && land.plant != nullptr) {
+                // Using a switch statement to handle different plant types
+                switch (land.plant->type) {
+                    case 'S':  // Assuming 'S' type plant damages one zombie
+                        if (!land.zombies.empty()) {
+                            // You need to define and implement the takeDamage method for the Zombie class
+                            land.zombies[0]->takeDamage(land.plant->val);
+                            if (land.zombies[0]->getHP() <= 0) {
+                                land.zombies.erase(land.zombies.begin());
+                            }
+                        }
+                        break;
+
+                    case 'B':  // Assuming 'B' type plant damages all zombies in the land
+                        for (auto& zombie : land.zombies) {
+                            zombie->takeDamage(land.plant->val);
+                        }
+                        land.zombies.erase(std::remove_if(
+                                land.zombies.begin(), 
+                                land.zombies.end(), 
+                                [](const std::shared_ptr<Zombie>& zombie){ return zombie->getHP() <= 0; }
+                            ), land.zombies.end());
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 
 };
+
+
 
 int main() {
     Game game;
