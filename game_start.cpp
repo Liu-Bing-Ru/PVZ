@@ -251,6 +251,10 @@ public:
                     std::cout << plants[playerChoice].name << " planted successfully\n";
                 }
             }
+        } else {
+            std::cout << "You give up!" << std::endl;
+            pressAnyKeyToContinue();
+            exit(0);
         }
         pressAnyKeyToContinue();
     }
