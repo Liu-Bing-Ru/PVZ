@@ -73,6 +73,8 @@ public:
             // Add the rest of the game loop here
             printGameBoard();
             waitForPlayerChoice();
+            printGameBoard();
+            movePlayerZombie();
             // if (isGameOver())
             // {
             //     break;
@@ -97,6 +99,7 @@ public:
         int intValue = std::stoi(input);
 
         if (intValue < min || intValue > max) {
+            std::cout << "Invalid input! Using default value." << std::endl;
             return defaultValue;
         }
 
@@ -252,26 +255,64 @@ public:
     // TODO: Implement this function.
     void waitForPlayerChoice() {
         std::cout << "\nplayer $" << getPlayerMoney() << ":    Enter your choice (0-" << plants.size()-1 << " to plant, " << plants.size() << " to give up, default: " << plants.size() << ")...>";
-        int playerChoice = readIntegerInput(0, plants.size(), plants.size());
-        if (playerChoice < plants.size()) {
-            if (getPlayerMoney() < plants[playerChoice].cost) {
-                std::cout << "Not enough money! Please input again!" << plants[playerChoice].name << std::endl;
-            } else {
-                if (lands[playerLand].plant != nullptr) {
-                    std::cout << "Land already occupied by another plant.\n";
+        while (true) {
+            int playerChoice = readIntegerInput(0, plants.size(), plants.size());
+            if (playerChoice < plants.size()) {
+                if (getPlayerMoney() < plants[playerChoice].cost) {
+                    std::cout << "Not enough money! Please input again!" << plants[playerChoice].name << std::endl;
+                    std::cout << "\nplayer $" << getPlayerMoney() << ":    Enter your choice (0-" << plants.size()-1 << " to plant, " << plants.size() << " to give up, default: " << plants.size() << ")...>";
                 } else {
-                    setPlayerMoney(getPlayerMoney() - plants[playerChoice].cost);
-                    lands[playerLand].plant = std::make_shared<Plant>(plants[playerChoice]);
-                    std::cout << "You have planted " << plants[playerChoice].name << " at land " << playerLand << "!\n";
+                    if (lands[playerLand].plant != nullptr) {
+                        std::cout << "Land already occupied by " << plants[playerChoice].name << "! Please input again!\n";
+                        std::cout << "\nplayer $" << getPlayerMoney() << ":    Enter your choice (0-" << plants.size()-1 << " to plant, " << plants.size() << " to give up, default: " << plants.size() << ")...>";
+                    } else {
+                        setPlayerMoney(getPlayerMoney() - plants[playerChoice].cost);
+                        lands[playerLand].plant = std::make_shared<Plant>(plants[playerChoice]);
+                        std::cout << "You have planted " << plants[playerChoice].name << " at land " << playerLand << "!\n";
+                        break;
+                    }
                 }
-            }
-        } else {
-            std::cout << "You give up!" << std::endl;
-            pressAnyKeyToContinue();
-            exit(0);
+            } else {
+                std::cout << "You give up!" << std::endl;
+                pressAnyKeyToContinue();
+                exit(0);
+            } 
         }
+        
+        
         pressAnyKeyToContinue();
     }
+
+    void movePlayerZombie() {
+    // Create a temporary vector to hold the zombies
+        std::vector<std::shared_ptr<Zombie>> tempZombies;
+
+        for (auto& land : lands) {
+            for (auto& zombie : land.zombies) {
+                tempZombies.push_back(zombie);
+            }
+            // Clear zombies from the current land
+            land.zombies.clear();
+        }
+
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distr(0, numberOfLands - 1);
+
+        // Distribute the zombies randomly
+        for (auto& zombie : tempZombies) {
+            int landIndex = distr(gen);
+            lands[landIndex].zombies.push_back(zombie);
+        }
+
+        // random change the position of player
+        lands[playerLand].hasPlayer = false;
+        playerLand = distr(gen);
+        lands[playerLand].hasPlayer = true;
+
+        pressAnyKeyToContinue();
+    }
+
 
 };
 
